@@ -15,31 +15,36 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "🥖 Bakery Management System",
   description: "Manage your bakery inventory, recipes, and production",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  manifest: "/manifest.json",  // 👈 ADD THIS LINE
-  appleWebApp: {                // 👈 ADD THIS SECTION
+  manifest: "/manifest.json",
+  appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Bakery App",
   },
-  formatDetection: {            // 👈 ADD THIS SECTION
+  formatDetection: {
     telephone: false,
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" /> {/* 👈 ADD THIS */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />      {/* 👈 ADD THIS */}
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" /> {/* 👈 ADD THIS */}
+        <link rel="apple-touch-icon" href="/icons/launchericon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <PWARegister /> {/* 👈 ADD THIS */}
+        <PWARegister />
       </body>
     </html>
   );
