@@ -450,7 +450,26 @@ const categories = ['all', ...new Set(ingredients.map(i => getCategory(i.name)))
     console.error('Error loading recipes:', recipeError);
     return;
   }
-
+const handleInstallClick = async () => {
+  if (!deferredPrompt) {
+    // Check if iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      alert('📱 On iPhone:\n1. Tap Share button (box with arrow)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" in top right');
+      return;
+    }
+    alert('Your browser supports installing apps. Look for "Install" or "Add to Home Screen" in your browser menu.');
+    return;
+  }
+  
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  if (outcome === 'accepted') {
+    setDeferredPrompt(null);
+    setShowInstallButton(false);
+  }
+};
   const transformed = await Promise.all(menuData.map(async (menu) => {
     const recipes = recipeData.filter(r => r.menu_item_id === menu.id);
     
@@ -476,7 +495,32 @@ const categories = ['all', ...new Set(ingredients.map(i => getCategory(i.name)))
       recipe: recipeWithNames
     };
   }));
+  // Add this with your other functions
+const checkInstallability = async () => {
+  // Check if already installed
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('App is already installed');
+    return;
+  }
+
+  // Check if deferredPrompt exists (browser supports install)
+  if (deferredPrompt) {
+    setShowInstallButton(true);
+    return;
+  }
+
+  // For browsers that don't support beforeinstallprompt, show manual instructions
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
   
+  if (isIOS && !isStandalone) {
+    // iOS Safari - show instructions
+    alert('To install this app on iPhone:\n1. Tap Share button\n2. Scroll down and tap "Add to Home Screen"');
+  } else if (!isStandalone) {
+    // Other browsers - show generic message
+    setShowInstallButton(true);
+  }
+};
   setMenuItems(transformed);
 };
 
@@ -514,15 +558,32 @@ useEffect(() => {
   loadMenuItems();
   loadSpoilageRecords();
   loadPurchaseRecords();
+  
+  // Check if app can be installed after data loads
+  setTimeout(() => {
+    checkInstallability();
+  }, 2000); // Wait 2 seconds after page load
 }, []);
 
 // 👇 ADD THIS NEW useEffect FOR PWA
+// 👇 UPDATE THIS useEffect FOR PWA
 useEffect(() => {
+  // Try to capture the install prompt
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     setDeferredPrompt(e);
     setShowInstallButton(true);
   });
+
+  // Also check immediately
+  checkInstallability();
+
+  // Check again after 3 seconds (for slow-loading browsers)
+  const timer = setTimeout(() => {
+    checkInstallability();
+  }, 3000);
+
+  return () => clearTimeout(timer);
 }, []);
 
 // ============= COMPUTED VALUES =============
@@ -798,14 +859,25 @@ const handleInstallClick = async () => {
           </p>
         </div>
       </div>
-{/* Install App Button */}
+{/* Install App Button - More Prominent */}
 {showInstallButton && (
-  <button
-    onClick={handleInstallClick}
-    className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 flex items-center"
-  >
-    📲 Install App
-  </button>
+  <div className="mb-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-lg p-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <span className="text-4xl">📱</span>
+        <div>
+          <h3 className="text-white font-bold text-lg">Install Bakery App</h3>
+          <p className="text-purple-100 text-sm">Get faster access with one tap on your home screen</p>
+        </div>
+      </div>
+      <button
+        onClick={handleInstallClick}
+        className="bg-white text-purple-600 px-6 py-3 rounded-lg hover:bg-gray-100 font-bold flex items-center gap-2 shadow-lg transform hover:scale-105 transition-transform"
+      >
+        📲 Install Now
+      </button>
+    </div>
+  </div>
 )}
       {/* Action Buttons - responsive */}
         <div className="mb-4 flex flex-col sm:flex-row justify-end gap-2">
