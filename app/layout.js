@@ -12,6 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// --- METADATA (without viewport) ---
 export const metadata = {
   title: "🥖 Bakery Management System",
   description: "Manage your bakery inventory, recipes, and production",
@@ -26,6 +27,7 @@ export const metadata = {
   },
 };
 
+// --- VIEWPORT (separate export, as required by Next.js 15+) ---
 export const viewport = {
   width: "device-width",
   initialScale: 1,
