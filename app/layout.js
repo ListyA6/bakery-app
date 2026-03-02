@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 // --- METADATA (without viewport) ---
 export const metadata = {
-  title: "🥖 Bakery Management System",
+  title: "🥖 Floural Inventory System",
   description: "Manage your bakery inventory, recipes, and production",
   manifest: "/manifest.json",
   appleWebApp: {
